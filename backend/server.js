@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 app.use(express.json()); //Middleware: to allow us to accept JSON data in the req.body
+
 app.use('/api/products', productRoutes);
 
 if (process.env.NODE_ENV === 'production') {
