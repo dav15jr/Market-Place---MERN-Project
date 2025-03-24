@@ -1,24 +1,23 @@
 // This is a self-contained serverless function for Netlify
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const path = require('path');
-const serverless = require('serverless-http');
+import express, { Router } from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import serverless from 'serverless-http';
 
-// Import your routes or create them here
-// You may need to convert from ES modules to CommonJS
-const productRoutes = require('../../backend/routes/product.route.js');
+// Import your routes
+import productRoutes from '../../backend/routes/product.route.js';
 
 dotenv.config();
 
-const app = express();
+const api = express();
+const router = Router();
 
 // Enable CORS
-app.use(cors());
+api.use(cors());
 
 // Middleware
-app.use(express.json());
+api.use(express.json());
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -33,7 +32,9 @@ const connectDB = async () => {
 connectDB();
 
 // API Routes
-app.use('/api/products', productRoutes);
+router.use('/products', productRoutes);
 
-// For serverless environments
-exports.handler = serverless(app);
+// Mount all routes under /api
+api.use('/api', router);
+
+export const handler = serverless(api);
