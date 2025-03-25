@@ -9,10 +9,12 @@
   external_node_modules = ["express", "cors", "mongoose", "dotenv", "serverless-http"]
   # Include backend files in the function bundle
   included_files = ["backend/**/*"]
+  # Set environment variables
+  environment = { NODE_ENV = "production" }
 
 [[redirects]]
   force = true
-  from = "/app/*"
+  from = "/api/*"
   to = "/.netlify/functions/server/:splat"
   status = 200
 

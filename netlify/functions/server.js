@@ -4,11 +4,12 @@ import path from 'path';
 import { connectDB } from '../../backend/config/db.js';
 import productRoutes from '../../backend/routes/product.route.js';
 import cors from 'cors';
-import serverless from 'serverless-http'; // You'll need to install this package
+import serverless from 'serverless-http';
 
 dotenv.config();
 
 const app = express();
+const router = express.Router();
 const __dirname = path.resolve();
 
 // Enable CORS
@@ -17,17 +18,32 @@ app.use(cors());
 // Middleware to accept JSON data in the req.body
 app.use(express.json());
 
-// Connect to MongoDB - only do this once
-connectDB().catch((err) => {
-  console.error('Failed to connect to MongoDB:', err);
-  // Don't exit the process in serverless environments
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
+// Connect to MongoDB
+let isConnected = false;
+
+const connectToDB = async () => {
+  if (isConnected) return;
+
+  try {
+    await connectDB();
+    isConnected = true;
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
   }
-});
+};
 
 // API Routes
-app.use('/api/products', productRoutes);
+router.use('/products', productRoutes);
+
+// Mount all routes under /api
+app.use('/api', router);
+
+// Connect to MongoDB before handling requests
+app.use(async (req, res, next) => {
+  await connectToDB();
+  next();
+});
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -47,7 +63,7 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// For serverless environments (Netlify, Vercel)
+// For serverless environments (Netlify)
 export const handler = serverless(app);
 
 // For Vercel and local development
