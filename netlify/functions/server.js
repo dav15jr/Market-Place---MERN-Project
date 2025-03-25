@@ -1,40 +1,54 @@
-// This is a self-contained serverless function for Netlify
-import express, { Router } from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
+import express from 'express';
 import dotenv from 'dotenv';
-import serverless from 'serverless-http';
-
-// Import your routes
-import productRoutes from '../../backend/routes/product.route.js';
+import path from 'path';
+import { connectDB } from './config/db.js';
+import productRoutes from './routes/product.route.js';
+import cors from 'cors';
+import serverless from 'serverless-http'; // You'll need to install this package
 
 dotenv.config();
 
-const api = express();
-const router = Router();
+const app = express();
+const __dirname = path.resolve();
 
 // Enable CORS
-api.use(cors());
+app.use(cors());
 
-// Middleware
-api.use(express.json());
+// Middleware to accept JSON data in the req.body
+app.use(express.json());
 
-// Connect to MongoDB
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
+// Connect to MongoDB - only do this once
+connectDB().catch((err) => {
+  console.error('Failed to connect to MongoDB:', err);
+  // Don't exit the process in serverless environments
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
   }
-};
-
-connectDB();
+});
 
 // API Routes
-router.use('/products', productRoutes);
+app.use('/api/products', productRoutes);
 
-// Mount all routes under /api
-api.use('/api', router);
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/frontend/dist')));
 
-export const handler = serverless(api);
+  // Handle SPA routing
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+  });
+}
+
+// For local development - run as a normal Express server
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+// For serverless environments (Netlify, Vercel)
+export const handler = serverless(app);
+
+// For Vercel and local development
+export default app;
