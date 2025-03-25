@@ -1,17 +1,7 @@
 [build]
-  command = "npm run build"
   functions = "netlify/functions"
-  publish = "frontend/dist"
-
-[functions]
-  node_bundler = "esbuild"
-  # Include all external modules your app depends on
-  external_node_modules = ["express", "cors", "mongoose", "dotenv", "serverless-http"]
-
-
 [[redirects]]
   force = true
   from = "/api/*"
-  to = "/.netlify/functions/server/:splat"
   status = 200
-
+  to = "/.netlify/functions/server/:splat"
