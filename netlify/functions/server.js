@@ -9,7 +9,6 @@ import serverless from 'serverless-http';
 dotenv.config();
 
 const app = express();
-const router = express.Router();
 const __dirname = path.resolve();
 
 // Enable CORS
@@ -20,6 +19,16 @@ app.use(express.json());
 
 // Connect to MongoDB
 let isConnected = false;
+
+
+// Connect to MongoDB - only do this once
+connectDB().catch((err) => {
+  console.error('Failed to connect to MongoDB:', err);
+  // Don't exit the process in serverless environments
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
+  }
+});
 
 const connectToDB = async () => {
   if (isConnected) return;
