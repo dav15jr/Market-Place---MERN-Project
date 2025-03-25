@@ -34,10 +34,7 @@ const connectToDB = async () => {
 };
 
 // API Routes
-router.use('/products', productRoutes);
-
-// Mount all routes under /api
-app.use('/api', router);
+app.use('/api/products', productRoutes);
 
 // Connect to MongoDB before handling requests
 app.use(async (req, res, next) => {
@@ -47,7 +44,7 @@ app.use(async (req, res, next) => {
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '/frontend/dist')));
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
   // Handle SPA routing
   app.get('*', (req, res) => {
@@ -66,5 +63,3 @@ if (process.env.NODE_ENV !== 'production') {
 // For serverless environments (Netlify)
 export const handler = serverless(app);
 
-// For Vercel and local development
-export default app;
