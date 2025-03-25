@@ -14,7 +14,7 @@
 
 [[redirects]]
   force = true
-  from = "/api/*"
+  from = "/api/products*"
   to = "/.netlify/functions/server/:splat"
   status = 200
 
