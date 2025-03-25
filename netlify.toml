@@ -5,11 +5,19 @@
 
 [functions]
   node_bundler = "esbuild"
-  # Include cors and all other external modules your app depends on
-  external_node_modules = ["express", "cors", "mongoose", "dotenv"]
+  # Include all external modules your app depends on
+  external_node_modules = ["express", "cors", "mongoose", "dotenv", "serverless-http"]
+  # Include backend files in the function bundle
+  included_files = ["backend/**/*"]
 
 [[redirects]]
-force = true
+  force = true
   from = "/app/*"
   to = "/.netlify/functions/server/:splat"
+  status = 200
+
+[[redirects]]
+  force = true
+  from = "/*"
+  to = "/index.html"
   status = 200

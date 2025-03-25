@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
-import { connectDB } from '/backend/config/db.js';
-import productRoutes from 'backend/routes/product.route.js';
+import { connectDB } from '../../backend/config/db.js';
+import productRoutes from '../../backend/routes/product.route.js';
 import cors from 'cors';
 import serverless from 'serverless-http'; // You'll need to install this package
 
